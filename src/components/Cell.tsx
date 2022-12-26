@@ -1,12 +1,13 @@
-import { Accessor, Component, Match, Show, Switch } from 'solid-js';
+import { Accessor, Component, Match, Setter, Switch } from 'solid-js';
 
 export interface GridCell {
   isBomb: boolean;
   numberOfNearbyBombs: number;
   isOpen: Accessor<boolean>;
-  open: () => {};
+  setIsOpen: Setter<boolean>;
+  open: () => void;
   isLock: Accessor<boolean>;
-  toggleLock: () => {};
+  toggleLock: () => void;
 }
 
 const cellBackground = (cell: GridCell) => {

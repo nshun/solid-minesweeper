@@ -10,8 +10,26 @@ const isBottomEndCell = (i: number, size: number) => i + size >= size ** 2;
 const App: Component = () => {
   const [gridSideLength, setGridSideLength] = createSignal(20);
   const [bombRate, setBombRate] = createSignal(20);
-  const [cells, setCells] = createSignal<GridCell[]>();
+  const [cells, setCells] = createSignal<GridCell[]>([]);
   const gridTemplateString = createMemo(() => `repeat(${gridSideLength()}, 1fr)`);
+
+  const createOpenCallback = (i: number) => () => {
+    const cell = cells()[i];
+    cell.setIsOpen(true);
+
+    if (!cell.isBomb && cell.numberOfNearbyBombs === 0) {
+      const size = gridSideLength();
+      const check = (j: number) => !cells()[j].isBomb && !cells()[j].isOpen();
+      if (!isLeftEndCell(i, size) && check(i - 1)) cells()[i - 1].open();
+      if (!isRightEndCell(i, size) && check(i + 1)) cells()[i + 1].open();
+      if (!isTopEndCell(i, size) && check(i - size)) cells()[i - size].open();
+      if (!isBottomEndCell(i, size) && check(i + size)) cells()[i + size].open();
+      if (!isRightEndCell(i, size) && !isTopEndCell(i, size) && check(i - size + 1)) cells()[i - size + 1].open();
+      if (!isRightEndCell(i, size) && !isBottomEndCell(i, size) && check(i + size + 1)) cells()[i + size + 1].open();
+      if (!isLeftEndCell(i, size) && !isTopEndCell(i, size) && check(i - size - 1)) cells()[i - size - 1].open();
+      if (!isLeftEndCell(i, size) && !isBottomEndCell(i, size) && check(i + size - 1)) cells()[i + size - 1].open();
+    }
+  };
 
   createEffect(() => {
     console.log('aaa');
@@ -21,12 +39,12 @@ const App: Component = () => {
     let cells: GridCell[] = Array.from({ length: cellNums }, (_, i) => {
       const [isOpen, setIsOpen] = createSignal(false);
       const [isLock, setIsLock] = createSignal(false);
-
       return {
         isBomb: i < cellNums * (rate / 100),
         numberOfNearbyBombs: 0,
         isOpen,
-        open: () => setIsOpen(true),
+        setIsOpen,
+        open: () => {},
         isLock,
         toggleLock: () => setIsLock(!isLock),
       };
@@ -43,6 +61,7 @@ const App: Component = () => {
         if (!isLeftEndCell(i, size) && !isTopEndCell(i, size)) cells[i - size - 1].numberOfNearbyBombs++;
         if (!isLeftEndCell(i, size) && !isBottomEndCell(i, size)) cells[i + size - 1].numberOfNearbyBombs++;
       }
+      cell.open = createOpenCallback(i);
       return cell;
     });
     setCells(cells);

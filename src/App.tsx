@@ -7,32 +7,39 @@ const isRightEndCell = (i: number, size: number) => (i + 1) % size === 0;
 const isTopEndCell = (i: number, size: number) => i - size < 0;
 const isBottomEndCell = (i: number, size: number) => i + size >= size ** 2;
 
+type Action = 'Open' | 'Check';
+
 const App: Component = () => {
-  const [gridSideLength, setGridSideLength] = createSignal(20);
+  const [gridSideLength, setGridSideLength] = createSignal(30);
   const [bombRate, setBombRate] = createSignal(20);
+  const [action, setAction] = createSignal<Action>('Open');
   const [cells, setCells] = createSignal<GridCell[]>([]);
   const gridTemplateString = createMemo(() => `repeat(${gridSideLength()}, 1fr)`);
 
-  const createOpenCallback = (i: number) => () => {
+  const createOnClickHandler = (i: number) => () => {
     const cell = cells()[i];
-    cell.setIsOpen(true);
+    if (action() === 'Check') {
+      cell.toggleLock();
+      return;
+    }
 
+    if (cell.isLock()) return;
+    cell.setIsOpen(true);
     if (!cell.isBomb && cell.numberOfNearbyBombs === 0) {
       const size = gridSideLength();
       const check = (j: number) => !cells()[j].isBomb && !cells()[j].isOpen();
-      if (!isLeftEndCell(i, size) && check(i - 1)) cells()[i - 1].open();
-      if (!isRightEndCell(i, size) && check(i + 1)) cells()[i + 1].open();
-      if (!isTopEndCell(i, size) && check(i - size)) cells()[i - size].open();
-      if (!isBottomEndCell(i, size) && check(i + size)) cells()[i + size].open();
-      if (!isRightEndCell(i, size) && !isTopEndCell(i, size) && check(i - size + 1)) cells()[i - size + 1].open();
-      if (!isRightEndCell(i, size) && !isBottomEndCell(i, size) && check(i + size + 1)) cells()[i + size + 1].open();
-      if (!isLeftEndCell(i, size) && !isTopEndCell(i, size) && check(i - size - 1)) cells()[i - size - 1].open();
-      if (!isLeftEndCell(i, size) && !isBottomEndCell(i, size) && check(i + size - 1)) cells()[i + size - 1].open();
+      if (!isLeftEndCell(i, size) && check(i - 1)) cells()[i - 1].onClick();
+      if (!isRightEndCell(i, size) && check(i + 1)) cells()[i + 1].onClick();
+      if (!isTopEndCell(i, size) && check(i - size)) cells()[i - size].onClick();
+      if (!isBottomEndCell(i, size) && check(i + size)) cells()[i + size].onClick();
+      if (!isRightEndCell(i, size) && !isTopEndCell(i, size) && check(i - size + 1)) cells()[i - size + 1].onClick();
+      if (!isRightEndCell(i, size) && !isBottomEndCell(i, size) && check(i + size + 1)) cells()[i + size + 1].onClick();
+      if (!isLeftEndCell(i, size) && !isTopEndCell(i, size) && check(i - size - 1)) cells()[i - size - 1].onClick();
+      if (!isLeftEndCell(i, size) && !isBottomEndCell(i, size) && check(i + size - 1)) cells()[i + size - 1].onClick();
     }
   };
 
   createEffect(() => {
-    console.log('aaa');
     const size = gridSideLength();
     const rate = bombRate();
     const cellNums = size ** 2;
@@ -44,9 +51,9 @@ const App: Component = () => {
         numberOfNearbyBombs: 0,
         isOpen,
         setIsOpen,
-        open: () => {},
+        onClick: () => {},
         isLock,
-        toggleLock: () => setIsLock(!isLock),
+        toggleLock: () => setIsLock(!isLock()),
       };
     });
     cells = shuffle(cells);
@@ -61,7 +68,7 @@ const App: Component = () => {
         if (!isLeftEndCell(i, size) && !isTopEndCell(i, size)) cells[i - size - 1].numberOfNearbyBombs++;
         if (!isLeftEndCell(i, size) && !isBottomEndCell(i, size)) cells[i + size - 1].numberOfNearbyBombs++;
       }
-      cell.open = createOpenCallback(i);
+      cell.onClick = createOnClickHandler(i);
       return cell;
     });
     setCells(cells);
@@ -69,19 +76,32 @@ const App: Component = () => {
 
   return (
     <div class="container mx-auto">
-      <div class="my-3 text-xl space-x-8">
-        <span>
-          <label>Game Side Length: </label>
+      <div class="flex my-3 text-xl space-x-4">
+        <label>
+          <span>Game Side Length:</span>
           <select value={gridSideLength()} onInput={(e) => setGridSideLength(Number(e.currentTarget.value))}>
-            <For each={[10, 20, 40, 60]}>{(num) => <option value={num}>{num}</option>}</For>
+            <For each={[20, 30, 40, 50, 60]}>{(num) => <option value={num}>{num}</option>}</For>
           </select>
-        </span>
-        <span>
-          <label>Bomb Rate: </label>
+        </label>
+        <label>
+          <span>Bomb Rate: </span>
           <select value={bombRate()} onInput={(e) => setBombRate(Number(e.currentTarget.value))}>
             <For each={[10, 15, 20, 25, 30]}>{(num) => <option value={num}>{num} %</option>}</For>
           </select>
-        </span>
+        </label>
+        <label>
+          <span>Action: </span>
+          <For each={['Open', 'Check']}>
+            {(a) => (
+              <button
+                onClick={() => setAction(a as Action)}
+                class={`mx-2 px-1 outline rounded-lg ${a === action() ? 'bg-pink-500' : 'bg-slate-200'}`}
+              >
+                {a}
+              </button>
+            )}
+          </For>
+        </label>
       </div>
 
       <div

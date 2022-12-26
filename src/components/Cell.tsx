@@ -33,12 +33,12 @@ const Cell: Component<CellProps> = ({ cell }) => {
       onClick={cell.onClick}
     >
       <Switch>
-        <Match when={cell.isLock()}>
-          <b>!</b>
-        </Match>
         <Match when={cell.isOpen() && cell.isBomb}>×</Match>
         <Match when={cell.isOpen() && cell.numberOfNearbyBombs > 0}>
           <span class="text-xl">{cell.numberOfNearbyBombs}</span>
+        </Match>
+        <Match when={cell.isLock()}>
+          <b>!</b>
         </Match>
       </Switch>
     </div>

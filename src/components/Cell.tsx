@@ -29,7 +29,7 @@ const Cell: Component<CellProps> = ({ cell }) => {
     <div
       class={`cell ${cellBackground(
         cell
-      )} hover:outline outline-cyan-500 w-full h-full flex justify-center items-center`}
+      )} hover:outline outline-cyan-500 w-5 h-5 min-w-full min-h-full flex justify-center items-center`}
       onClick={cell.onClick}
     >
       <Switch>

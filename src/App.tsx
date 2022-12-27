@@ -9,7 +9,7 @@ const App: Component = () => {
   return (
     <GameProvider>
       <Dialog />
-      <div class="container w-fit p-1 mx-auto">
+      <div class="container w-fit min-w-fit p-1 mx-auto">
         <Nav />
         <Grid />
         <Footer />

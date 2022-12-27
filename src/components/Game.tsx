@@ -25,6 +25,7 @@ interface CreateNewGameProps {
 
 interface Game {
   gameState: Accessor<GameState>;
+  setGameState: Setter<GameState>;
   cells: Accessor<GridCell[]>;
   gridSize: Accessor<number>;
   bombRate: Accessor<number>;
@@ -129,6 +130,7 @@ const GameProvider: ParentComponent = (props) => {
     });
 
     batch(() => {
+      setGameState('InGame');
       setGridSize(size);
       setBombRate(rate);
       setCells(cells);
@@ -137,6 +139,7 @@ const GameProvider: ParentComponent = (props) => {
 
   const store = {
     gameState,
+    setGameState,
     cells,
     gridSize,
     bombRate,

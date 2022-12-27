@@ -10,7 +10,7 @@ const App: Component = () => {
   return (
     <div
       style={{ 'grid-template-columns': gridTemplateString() }}
-      class="p-0.5 grid gap-0.5 auto-rows-fr bg-slate-700 w-auto max-w-3xl aspect-square select-none"
+      class="p-0.5 grid gap-0.5 auto-rows-fr bg-slate-700 w-full min-w-full aspect-square select-none"
     >
       <For each={cells()} fallback={'Input a grid side length.'}>
         {(cell) => <Cell cell={cell} />}

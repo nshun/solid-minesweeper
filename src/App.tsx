@@ -1,5 +1,6 @@
 import { Component } from 'solid-js';
 import Dialog from './components/Dialog';
+import Footer from './components/Footer';
 import GameProvider from './components/Game';
 import Grid from './components/Grid';
 import Nav from './components/Nav';
@@ -12,6 +13,7 @@ const App: Component = () => {
         <Nav />
         <Grid />
       </div>
+      <Footer />
     </GameProvider>
   );
 };
